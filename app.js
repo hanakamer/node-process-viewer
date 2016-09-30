@@ -3,7 +3,7 @@ var fs = require('fs');
 var shellParser = require('node-shell-parser');
 var child = require('child_process');
 function getData(callback){
-  var process = child.spawn('ps',['-aef']);
+  var process = child.spawn('ps');
   var shellOutput = '';
   process.stdout.on('data',function(chunk){
     shellOutput += chunk;
@@ -30,6 +30,10 @@ io.sockets.on('connection', function(socket){
           socket.emit('data',data);
       })
   }, 4000);
+
+  socket.on('kill', function(pid){
+    console.log(pid);
+  })
 
 });
 
