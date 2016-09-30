@@ -2,8 +2,17 @@ var http  = require('http')
 var fs = require('fs');
 var shellParser = require('node-shell-parser');
 var child = require('child_process');
-var process = child.spawn('ps',['-aef']);
-var shellOutput = '';
+function getData(callback){
+  var process = child.spawn('ps',['-aef']);
+  var shellOutput = '';
+  process.stdout.on('data',function(chunk){
+    shellOutput += chunk;
+  });
+  process.stdout.on('end', function () {
+    var parsed = shellParser(shellOutput);
+    callback(parsed);
+  });
+}
 
 var server = http.createServer(function(req, res){
   fs.readFile('./index.html', 'utf-8', function(error, content) {
@@ -14,15 +23,16 @@ var server = http.createServer(function(req, res){
 
 var io = require('socket.io').listen(server);
 
-
 io.sockets.on('connection', function(socket){
   console.log('a client is connected');
-  process.stdout.on('data',function(chunk){
-    shellOutput += chunk;
-  });
-  process.stdout.on('end', function () {
-    socket.emit('data',shellParser(shellOutput));
-  });
+    setInterval(function () {
+      getData(function(data){
+          socket.emit('data',data);
+      })
+  }, 4000);
+
 });
 
-server.listen(3000)
+
+
+server.listen(3000);
