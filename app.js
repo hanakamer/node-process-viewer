@@ -2,8 +2,12 @@ var http  = require('http')
 var fs = require('fs');
 var shellParser = require('node-shell-parser');
 var child = require('child_process');
+var procmon = require('process-monitor');
+var check = false;
+var _pid;
+
 function getData(callback){
-  var process = child.spawn('ps');
+  var process = child.spawn('ps',['-A']);
   var shellOutput = '';
   process.stdout.on('data',function(chunk){
     shellOutput += chunk;
@@ -12,6 +16,17 @@ function getData(callback){
     var parsed = shellParser(shellOutput);
     callback(parsed);
   });
+}
+function getDetail(cb,pidd){
+
+  this.pid = pidd;
+  procmon.monitor({pid: this.pid, interval: 400}).start()
+  .on('stats', function(stats) {
+    cb(stats);
+  });
+
+
+
 }
 
 var server = http.createServer(function(req, res){
@@ -24,6 +39,7 @@ var server = http.createServer(function(req, res){
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function(socket){
+
   console.log('a client is connected');
     setInterval(function () {
       getData(function(data){
@@ -32,11 +48,17 @@ io.sockets.on('connection', function(socket){
   }, 4000);
 
   socket.on('kill', function(pid){
-    console.log(pid);
-  })
 
+  })
+  socket.on('detail', function(pid){
+    getDetail(function(data){
+      socket.emit('detail',data)
+    },pid);
+  })
 });
 
 
 
 server.listen(3000);
+
+ // top -pid 3461 -stats "pid,command,cpu" -l 1 | tail -n 1 | tr -s ' ' | cut -d' ' -f 3
