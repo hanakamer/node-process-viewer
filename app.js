@@ -2,33 +2,25 @@ var http  = require('http')
 var fs = require('fs');
 var shellParser = require('node-shell-parser');
 var child = require('child_process');
-var procmon = require('process-monitor');
-var check = false;
-var _pid;
+var kill = require('tree-kill');
+
 
 function getData(callback){
-  var process = child.spawn('ps',['-A']);
+  var process = child.exec('ps aux');
   var shellOutput = '';
-  process.stdout.on('data',function(chunk){
-    shellOutput += chunk;
-  });
-  process.stdout.on('end', function () {
-    var parsed = shellParser(shellOutput);
-    callback(parsed);
-  });
-}
-function getDetail(cb,pidd){
-
-  this.pid = pidd;
-  procmon.monitor({pid: this.pid, interval: 400}).start()
-  .on('stats', function(stats) {
-    cb(stats);
-  });
-
-
+  if(process.stdout !== undefined){
+    process.stdout.on('data',function(chunk){
+      shellOutput += chunk;
+    });
+    process.stdout.on('end', function () {
+      var parsed = shellParser(shellOutput);
+      callback(parsed);
+    });
+  } else {
+    getData(callback);
+  }
 
 }
-
 var server = http.createServer(function(req, res){
   fs.readFile('./index.html', 'utf-8', function(error, content) {
         res.writeHead(200, {"Content-Type": "text/html"});
@@ -45,16 +37,13 @@ io.sockets.on('connection', function(socket){
       getData(function(data){
           socket.emit('data',data);
       })
-  }, 4000);
+  }, 800);
 
   socket.on('kill', function(pid){
+    kill(pid)
 
   })
-  socket.on('detail', function(pid){
-    getDetail(function(data){
-      socket.emit('detail',data)
-    },pid);
-  })
+
 });
 
 

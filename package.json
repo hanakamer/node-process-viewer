@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "node-shell-parser": "^0.2.1",
-    "pidusage": "git+https://github.com/soyuka/pidusage.git",
-    "socket.io": "^1.4.8"
+    "socket.io": "^1.4.8",
+    "tree-kill": "git+https://github.com/pkrumins/node-tree-kill.git"
   }
 }
