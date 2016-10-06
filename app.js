@@ -63,7 +63,8 @@ io.sockets.on('connection', function(socket){
   socket.on('kill', function(process){
     var exec = require('child_process').exec;
     var child = exec( 'pgrep -P ' + process.PID );
-    kill(process.PID);
+    // kill(process.PID);
+    console.log('no I wont');
   })
 
 });
