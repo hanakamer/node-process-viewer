@@ -2,9 +2,30 @@ var http  = require('http')
 var fs = require('fs');
 var shellParser = require('node-shell-parser');
 var child = require('child_process');
-var kill = require('tree-kill');
+var psTree = require('ps-tree');
 
-
+var kill = function (pid, signal, callback) {
+    signal   = signal || 'SIGKILL';
+    callback = callback || function () {};
+    var killTree = true;
+    if(killTree) {
+        psTree(pid, function (err, children) {
+            [pid].concat(
+                children.map(function (p) {
+                    return p.PID;
+                })
+            ).forEach(function (tpid) {
+                try { process.kill(tpid, signal) }
+                catch (ex) { }
+            });
+            callback();
+        });
+    } else {
+        try { process.kill(pid, signal) }
+        catch (ex) { }
+        callback();
+    }
+};
 function getData(callback){
   var process = child.exec('ps aux');
   var shellOutput = '';
@@ -39,9 +60,10 @@ io.sockets.on('connection', function(socket){
       })
   }, 800);
 
-  socket.on('kill', function(pid){
-    kill(pid)
-
+  socket.on('kill', function(process){
+    var exec = require('child_process').exec;
+    var child = exec( 'pgrep -P ' + process.PID );
+    kill(process.PID);
   })
 
 });
@@ -49,5 +71,3 @@ io.sockets.on('connection', function(socket){
 
 
 server.listen(3000);
-
- // top -pid 3461 -stats "pid,command,cpu" -l 1 | tail -n 1 | tr -s ' ' | cut -d' ' -f 3

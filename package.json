@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "node-shell-parser": "^0.2.1",
-    "socket.io": "^1.4.8",
-    "tree-kill": "git+https://github.com/pkrumins/node-tree-kill.git"
+    "ps-tree": "^1.1.0",
+    "socket.io": "^1.4.8"
   }
 }
