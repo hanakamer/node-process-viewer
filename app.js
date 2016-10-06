@@ -4,6 +4,14 @@ var shellParser = require('node-shell-parser');
 var child = require('child_process');
 var psTree = require('ps-tree');
 
+var pkey = fs.readFileSync('key.pem');
+var pcert = fs.readFileSync('cert.pem')
+
+var options = {
+    key: pkey,
+    cert: pcert
+};
+
 var kill = function (pid, signal, callback) {
     signal   = signal || 'SIGKILL';
     callback = callback || function () {};
@@ -42,12 +50,18 @@ function getData(callback){
   }
 
 }
-var server = https.createServer(function(req, res){
-  fs.readFile('./index.html', 'utf-8', function(error, content) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end(content);
-    });
+// var server = https.createServer(function(req, res){
+//   fs.readFile('./index.html', 'utf-8', function(error, content) {
+//         res.writeHead(200, {"Content-Type": "text/html"});
+//         res.end(content);
+//     });
+// });
+
+var server = https.createServer(options,function(req, res){
+  res.writeHead(200);
+  res.end("hello");
 });
+
 
 var io = require('socket.io').listen(server);
 
