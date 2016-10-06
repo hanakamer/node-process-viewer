@@ -64,6 +64,8 @@ io.sockets.on('connection', function(socket){
     var exec = require('child_process').exec;
     var child = exec( 'pgrep -P ' + process.PID );
     // kill(process.PID);
+    var msg = 'no I wont kill ' + process.PID;
+    socket.emit('msg',msg)
     console.log('no I wont');
   })
 
