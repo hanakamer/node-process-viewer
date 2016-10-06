@@ -4,13 +4,8 @@ var shellParser = require('node-shell-parser');
 var child = require('child_process');
 var psTree = require('ps-tree');
 
-var pkey = fs.readFileSync('key.pem');
-var pcert = fs.readFileSync('cert.pem')
 
-var options = {
-    key: pkey,
-    cert: pcert
-};
+
 
 var kill = function (pid, signal, callback) {
     signal   = signal || 'SIGKILL';
@@ -57,7 +52,7 @@ function getData(callback){
 //     });
 // });
 
-var server = https.createServer(options,function(req, res){
+var server = https.createServer(function(req, res){
   res.writeHead(200);
   res.end("hello");
 });
